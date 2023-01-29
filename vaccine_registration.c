@@ -16,33 +16,40 @@ struct person{
 		double pin;
 	}add;
 };
-unsigned long n;
 FILE *fptr;
+unsigned long n;
+int flag=0,count=0;
 struct person pr;
-static unsigned long k;
-void randomGenerate(){
-	k=rand();
+unsigned long k=2302000;
+int countpr(){
+	fptr=fopen("registered.txt","r");
+	fread(&pr,1,sizeof(pr),fptr);
+	while(!feof(fptr)){
+		count++;
+		fread(&pr,1,sizeof(pr),fptr);
+	}
+}
+unsigned long randomGenerate(){
 	fptr=fopen("registered.txt","r");
 	fread(&pr,1,sizeof(pr),fptr);
 	while(!feof(fptr)){
 		if(k==pr.regn){
-			fclose(fptr);
-			randomGenerate();
+			k=rand();
 		}
 		fread(&pr,1,sizeof(pr),fptr);
 	}
 	fclose(fptr);
+	return k;
 }
 void newregistration(){
 	char ch;
-	randomGenerate();
 	fptr=fopen("registered.txt","a");
 	if(fptr==NULL){
-		printf("File doesn't exists...\n");
+		printf("\t\t\t\tFile doesn't exists...\n");
 		exit(0);
 	}
 	system("cls");
-	printf("\n********* Registration **********\n");
+	printf("\n\t\t\t\t********* Registration **********\n");
 	printf("\t\t\t\tEnter Name: ");
 	fflush(stdin);
 	gets(pr.name);
@@ -74,15 +81,16 @@ void newregistration(){
 	fflush(stdin);
 	printf("\t\t\t\tPIN CODE: ");
 	scanf("%ld",&pr.add.pin);
-	pr.regn=k;
+	pr.regn=k+countpr();
 	printf("\t\t\t\tYour registration is successfully...");
-	printf("\tYour registration No: %ld",k);
+	printf("\tYour registration No: %ld",pr.regn);
 	fwrite(&pr,sizeof(pr),1,fptr);
 	fclose(fptr);
 }
 void display(struct person pr){
 	printf("\n\t\t\t\t********* DETAILS *********\n");
 	printf("\n\t\t\t\tRegistration No: %ld\n",pr.regn);fflush(stdin);
+	printf("\t\t\t\tName: %s\n",pr.name);fflush(stdin);
 	printf("\t\t\t\tGender(m/f): %c\n",pr.gender);fflush(stdin);
 	printf("\t\t\t\tAge: %d\n",pr.age);fflush(stdin);
 	printf("\t\t\t\tAadhar No.: %llu\n",pr.aadhar);fflush(stdin);
@@ -99,7 +107,7 @@ void displayAll(){
 	fptr=fopen("registered.txt","r");
 	fread(&pr,1,sizeof(pr),fptr);
 	system("cls");
-	printf("*********** ALL RECORDS ************");
+	printf("\t\t\t\t*********** ALL RECORDS ************");
 	while(!feof(fptr)){
 		display(pr);
 		fread(&pr,1,sizeof(pr),fptr);
@@ -116,9 +124,12 @@ void searchByReg(){
 	while(!feof(fptr)){
 		if(n==pr.regn){
 			display(pr);
+			flag= 1;
 		}
 		fread(&pr,1,sizeof(pr),fptr);
 	}
+	if(flag==0)
+		printf("\n\t\t\t\tRecord NOT found...\n");
 	fclose(fptr);
 }
 
@@ -168,8 +179,8 @@ void vaccine(){
 int main(){
 	int n;
 	char ch;
-	system("cls");
 	do{
+		system("cls");
 		printf("\n\t\t\t\t****** VACCINE REGISTRATION ******\n");
 		printf("\n\t\t\t\t1. New Registration\n");
 		printf("\n\t\t\t\t2. Search\n");
@@ -193,7 +204,6 @@ int main(){
 			default:
 				printf("\t\t\t\tINVALID INPUT\n\t\t\t\tPLEASE TRY AGAIN...");
 		}
-		system("cls");
 		printf("\n\t\t\t\t\t\t\t\tWish you continue (y/n):");
 		fflush(stdin);
 		scanf("%c",&ch);
